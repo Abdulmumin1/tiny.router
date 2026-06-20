@@ -64,6 +64,19 @@ class ModelTests(unittest.TestCase):
             loaded = RouterModel.load(path)
             self.assertEqual(loaded.predict_proba("prove concurrency"), self.model.predict_proba("prove concurrency"))
 
+    def test_checksum_detects_tampering(self) -> None:
+        payload = self.model.to_dict()
+        payload["temperature"] = 2.0
+        with self.assertRaisesRegex(ValueError, "checksum"):
+            RouterModel.from_dict(payload)
+
+    def test_loads_legacy_artifacts(self) -> None:
+        payload = self.model.to_dict()
+        payload["format"] = "tiny-router-v1"
+        payload.pop("sha256")
+        loaded = RouterModel.from_dict(payload)
+        self.assertEqual(loaded.dimensions, self.model.dimensions)
+
     def test_load_rejects_non_finite_artifact_values(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "model.json"
