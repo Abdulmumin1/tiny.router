@@ -138,6 +138,22 @@ class PolicyTests(unittest.TestCase):
         decision = RoutingPolicy().route(model, "hello")
         json.dumps(decision.to_dict())
 
+    def test_explicit_tier_bounds_are_respected(self) -> None:
+        floor = RoutingPolicy(minimum_tier=Tier.MEDIUM, underroute_penalty=0)
+        self.assertEqual(floor.route_probabilities((1.0, 0.0, 0.0)).tier, Tier.MEDIUM)
+        ceiling = RoutingPolicy(maximum_tier=Tier.MEDIUM, underroute_penalty=1000)
+        self.assertEqual(ceiling.route_probabilities((0.0, 0.0, 1.0)).tier, Tier.MEDIUM)
+
+    def test_high_probability_guardrail_is_explainable(self) -> None:
+        policy = RoutingPolicy(tier_costs=(0, 1, 100), underroute_penalty=1, high_probability_threshold=0.6)
+        decision = policy.route_probabilities((0.2, 0.19, 0.61))
+        self.assertEqual(decision.tier, Tier.HIGH)
+        self.assertEqual(decision.reason, "high_risk_guardrail")
+
+    def test_invalid_bounds_are_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "minimum_tier"):
+            RoutingPolicy(minimum_tier=Tier.HIGH, maximum_tier=Tier.LOW)
+
 
 if __name__ == "__main__":
     unittest.main()

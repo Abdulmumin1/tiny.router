@@ -13,6 +13,9 @@ class RoutingPolicy:
     underroute_penalty: float = 25.0
     confidence_threshold: float = 0.45
     uncertain_tier: Tier = Tier.MEDIUM
+    minimum_tier: Tier = Tier.LOW
+    maximum_tier: Tier = Tier.HIGH
+    high_probability_threshold: float = 0.70
 
     def __post_init__(self) -> None:
         if len(self.tier_costs) != 3 or any(cost < 0 or not math.isfinite(cost) for cost in self.tier_costs):
@@ -23,6 +26,10 @@ class RoutingPolicy:
             raise ValueError("underroute penalty must be finite and non-negative")
         if not 0 <= self.confidence_threshold <= 1:
             raise ValueError("confidence threshold must be in [0, 1]")
+        if self.minimum_tier > self.maximum_tier:
+            raise ValueError("minimum_tier cannot exceed maximum_tier")
+        if not 0 <= self.high_probability_threshold <= 1:
+            raise ValueError("high_probability_threshold must be in [0, 1]")
 
     def expected_costs(self, probabilities: tuple[float, float, float]) -> tuple[float, float, float]:
         if len(probabilities) != 3 or any(value < 0 or not math.isfinite(value) for value in probabilities):
@@ -41,12 +48,19 @@ class RoutingPolicy:
 
     def route(self, model: RouterModel, prompt: str) -> RouteDecision:
         probabilities = model.predict_proba(prompt)
+        return self.route_probabilities(probabilities)
+
+    def route_probabilities(self, probabilities: tuple[float, float, float]) -> RouteDecision:
         confidence = max(probabilities)
         expected = self.expected_costs(probabilities)
-        tier = Tier(min(range(3), key=expected.__getitem__))
+        candidates = range(int(self.minimum_tier), int(self.maximum_tier) + 1)
+        tier = Tier(min(candidates, key=expected.__getitem__))
         reason = "minimum_expected_cost"
-        if confidence < self.confidence_threshold and tier < self.uncertain_tier:
-            tier = self.uncertain_tier
+        if probabilities[int(Tier.HIGH)] >= self.high_probability_threshold and self.maximum_tier >= Tier.HIGH:
+            tier = Tier.HIGH
+            reason = "high_risk_guardrail"
+        fallback_tier = min(self.maximum_tier, max(self.minimum_tier, self.uncertain_tier))
+        if confidence < self.confidence_threshold and tier < fallback_tier:
+            tier = fallback_tier
             reason = "low_confidence_fallback"
         return RouteDecision(tier, probabilities, confidence, expected, reason)
-
