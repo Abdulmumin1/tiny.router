@@ -78,6 +78,9 @@ class RouterConfig:
         raw_models = payload.get("models")
         if not isinstance(raw_models, dict):
             raise ConfigurationError("models must be an object")
+        expected_model_keys = {tier.label for tier in Tier}
+        if set(raw_models) != expected_model_keys:
+            raise ConfigurationError("model keys must be exactly: low, medium, high")
         try:
             models = {Tier.parse(key): ModelTarget.parse(value) for key, value in raw_models.items()}
         except (TypeError, ValueError) as exc:

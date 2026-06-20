@@ -14,8 +14,13 @@ class Tier(IntEnum):
     def parse(cls, value: str | int | "Tier") -> "Tier":
         if isinstance(value, cls):
             return value
+        if isinstance(value, bool):
+            raise ValueError(f"unknown tier: {value!r}")
         if isinstance(value, int):
-            return cls(value)
+            try:
+                return cls(value)
+            except ValueError as exc:
+                raise ValueError(f"unknown tier: {value!r}") from exc
         try:
             return cls[value.strip().upper()]
         except (KeyError, AttributeError) as exc:
@@ -46,4 +51,3 @@ class RouteDecision:
             },
             "reason": self.reason,
         }
-

@@ -175,25 +175,36 @@ class RouterModel:
             if not isinstance(checksum, str) or checksum != expected:
                 raise ArtifactError("model artifact checksum mismatch")
         try:
-            dimensions = int(payload["dimensions"])
+            dimensions = payload["dimensions"]
             weights = payload["weights"]
-        except (KeyError, TypeError, ValueError) as exc:
+        except KeyError as exc:
             raise ArtifactError("model artifact is missing valid dimensions or weights") from exc
         if (
-            dimensions < 8
+            not isinstance(dimensions, int)
+            or isinstance(dimensions, bool)
+            or dimensions < 8
             or not isinstance(weights, list)
             or len(weights) != 3
             or any(not isinstance(row, list) or len(row) != dimensions for row in weights)
         ):
             raise ArtifactError("invalid model dimensions")
         try:
+            if any(
+                isinstance(value, bool) or not isinstance(value, (int, float))
+                for row in weights
+                for value in row
+            ):
+                raise TypeError
             clean_weights = [[float(value) for value in row] for row in weights]
         except (TypeError, ValueError) as exc:
             raise ArtifactError("model contains non-numeric weights") from exc
         if any(not math.isfinite(value) for row in clean_weights for value in row):
             raise ArtifactError("model contains non-finite weights")
+        raw_temperature = payload.get("temperature", 1.0)
         try:
-            temperature = float(payload.get("temperature", 1.0))
+            if isinstance(raw_temperature, bool) or not isinstance(raw_temperature, (int, float)):
+                raise TypeError
+            temperature = float(raw_temperature)
         except (TypeError, ValueError) as exc:
             raise ArtifactError("model temperature must be numeric") from exc
         if not math.isfinite(temperature) or temperature <= 0:

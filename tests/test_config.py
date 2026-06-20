@@ -35,7 +35,12 @@ class ConfigTests(unittest.TestCase):
 
     def test_all_tiers_are_required(self) -> None:
         payload = {"models": {"low": "tiny", "high": "large"}}
-        with self.assertRaisesRegex(ConfigurationError, "medium"):
+        with self.assertRaisesRegex(ConfigurationError, "exactly"):
+            RouterConfig.from_dict(payload)
+
+    def test_tier_keys_are_exact_and_cannot_alias(self) -> None:
+        payload = {"models": {"low": "a", "LOW": "b", "medium": "c", "high": "d"}}
+        with self.assertRaisesRegex(ConfigurationError, "exactly"):
             RouterConfig.from_dict(payload)
 
     def test_load_reports_invalid_json(self) -> None:

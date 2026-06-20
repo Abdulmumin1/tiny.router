@@ -35,14 +35,22 @@ class Example:
 
 
 def label_from_scores(scores: dict[str, float], acceptable_score: float) -> Tier:
-    if not math.isfinite(acceptable_score) or not 0 <= acceptable_score <= 1:
+    if (
+        isinstance(acceptable_score, bool)
+        or not isinstance(acceptable_score, (int, float))
+        or not math.isfinite(acceptable_score)
+        or not 0 <= acceptable_score <= 1
+    ):
         raise DatasetError("acceptable_score must be finite and in [0, 1]")
     validated: dict[Tier, float] = {}
     for tier in Tier:
         if tier.label not in scores:
             raise DatasetError(f"scores.{tier.label} is required")
+        raw_score = scores[tier.label]
         try:
-            score = float(scores[tier.label])
+            if isinstance(raw_score, bool) or not isinstance(raw_score, (int, float)):
+                raise TypeError
+            score = float(raw_score)
         except (TypeError, ValueError) as exc:
             raise DatasetError(f"scores.{tier.label} must be numeric") from exc
         if not math.isfinite(score) or not 0 <= score <= 1:
@@ -65,8 +73,11 @@ def parse_record(record: dict[str, object], acceptable_score: float = 0.8) -> Ex
         if not isinstance(scores, dict):
             raise ValueError("record needs either label or scores")
         label = label_from_scores(scores, acceptable_score)  # type: ignore[arg-type]
+    raw_weight = record.get("weight", 1.0)
     try:
-        weight = float(record.get("weight", 1.0))
+        if isinstance(raw_weight, bool) or not isinstance(raw_weight, (int, float)):
+            raise TypeError
+        weight = float(raw_weight)
     except (TypeError, ValueError) as exc:
         raise DatasetError("record.weight must be numeric") from exc
     if not math.isfinite(weight) or weight <= 0:

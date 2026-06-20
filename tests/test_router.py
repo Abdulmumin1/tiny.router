@@ -33,6 +33,12 @@ class DataTests(unittest.TestCase):
             label_from_scores({"low": 0.2, "medium": 0.9}, 0.8)
         with self.assertRaisesRegex(ValueError, "scores.low"):
             label_from_scores({"low": float("nan"), "medium": 0.9, "high": 1.0}, 0.8)
+        with self.assertRaisesRegex(ValueError, "scores.low"):
+            label_from_scores({"low": True, "medium": 0.9, "high": 1.0}, 0.8)
+
+    def test_boolean_is_not_a_tier(self) -> None:
+        with self.assertRaisesRegex(ValueError, "unknown tier"):
+            Tier.parse(True)
 
     def test_jsonl_error_has_line_number(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -143,6 +149,14 @@ class ModelTests(unittest.TestCase):
             path.write_text(json.dumps(payload), encoding="utf-8")
             with self.assertRaisesRegex(ValueError, "temperature"):
                 RouterModel.load(path)
+
+    def test_artifact_schema_rejects_coerced_scalar_types(self) -> None:
+        payload = self.model.to_dict()
+        payload["format"] = "tiny-router-v1"
+        payload.pop("sha256")
+        payload["dimensions"] = str(self.model.dimensions)
+        with self.assertRaisesRegex(ValueError, "dimensions"):
+            RouterModel.from_dict(payload)
 
     def test_evaluation_counts_confusion_matrix(self) -> None:
         metrics = evaluate(self.model, self.examples, RoutingPolicy(underroute_penalty=100))
