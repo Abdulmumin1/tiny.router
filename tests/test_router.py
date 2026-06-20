@@ -17,7 +17,14 @@ class DataTests(unittest.TestCase):
     def test_score_labels_choose_cheapest_acceptable_tier(self) -> None:
         self.assertEqual(label_from_scores({"low": 0.81, "medium": 0.9, "high": 1.0}, 0.8), Tier.LOW)
         self.assertEqual(label_from_scores({"low": 0.2, "medium": 0.85, "high": 0.9}, 0.8), Tier.MEDIUM)
-        self.assertEqual(label_from_scores({"low": 0.2, "medium": 0.3, "high": 0.4}, 0.8), Tier.HIGH)
+        with self.assertRaisesRegex(ValueError, "no tier"):
+            label_from_scores({"low": 0.2, "medium": 0.3, "high": 0.4}, 0.8)
+
+    def test_scores_require_all_tiers_and_finite_range(self) -> None:
+        with self.assertRaisesRegex(ValueError, "scores.high"):
+            label_from_scores({"low": 0.2, "medium": 0.9}, 0.8)
+        with self.assertRaisesRegex(ValueError, "scores.low"):
+            label_from_scores({"low": float("nan"), "medium": 0.9, "high": 1.0}, 0.8)
 
     def test_jsonl_error_has_line_number(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -34,6 +41,12 @@ class DataTests(unittest.TestCase):
         self.assertEqual(len(first[0]), 15)
         self.assertEqual(len(first[1]), 5)
         self.assertEqual(set(first[0] + first[1]), set(examples))
+
+    def test_split_stratifies_each_tier(self) -> None:
+        examples = [Example(f"{tier.label}-{index}", tier) for tier in Tier for index in range(10)]
+        training, validation = split_examples(examples, 0.2, seed=3)
+        self.assertEqual([sum(item.label == tier for item in validation) for tier in Tier], [2, 2, 2])
+        self.assertEqual([sum(item.label == tier for item in training) for tier in Tier], [8, 8, 8])
 
 
 class ModelTests(unittest.TestCase):

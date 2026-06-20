@@ -80,7 +80,7 @@ class RouterModel:
                 features = extract_features(example.prompt, dimensions)
                 probabilities = model.predict_proba(example.prompt)
                 # Mistaking medium/high requirements for low is progressively more costly.
-                sample_weight = 1.0 + underroute_weight * int(example.label)
+                sample_weight = example.weight * (1.0 + underroute_weight * int(example.label))
                 for class_index, row in enumerate(model.weights):
                     error = (probabilities[class_index] - int(class_index == example.label)) * sample_weight
                     for feature_index, value in features.items():
