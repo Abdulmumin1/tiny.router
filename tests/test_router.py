@@ -48,6 +48,19 @@ class DataTests(unittest.TestCase):
         self.assertEqual([sum(item.label == tier for item in validation) for tier in Tier], [2, 2, 2])
         self.assertEqual([sum(item.label == tier for item in training) for tier in Tier], [8, 8, 8])
 
+    def test_grouped_variants_never_leak_across_split(self) -> None:
+        examples = [
+            Example(f"prompt {group} {variant}", Tier(group % 3), group=f"task-{group}")
+            for group in range(12)
+            for variant in range(2)
+        ]
+        training, validation = split_examples(examples, 0.25, seed=5)
+        training_groups = {item.group for item in training}
+        validation_groups = {item.group for item in validation}
+        self.assertFalse(training_groups & validation_groups)
+        self.assertGreater(len(validation), 0)
+        self.assertLess(abs(len(validation) - 6), 3)
+
 
 class ModelTests(unittest.TestCase):
     def setUp(self) -> None:

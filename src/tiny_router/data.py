@@ -16,6 +16,7 @@ class Example:
     prompt: str
     label: Tier
     weight: float = 1.0
+    group: str | None = None
 
 
 def label_from_scores(scores: dict[str, float], acceptable_score: float) -> Tier:
@@ -55,7 +56,10 @@ def parse_record(record: dict[str, object], acceptable_score: float = 0.8) -> Ex
         raise DatasetError("record.weight must be numeric") from exc
     if not math.isfinite(weight) or weight <= 0:
         raise DatasetError("record.weight must be finite and positive")
-    return Example(prompt=prompt, label=label, weight=weight)
+    group = record.get("group")
+    if group is not None and (not isinstance(group, str) or not group.strip()):
+        raise DatasetError("record.group must be a non-empty string when set")
+    return Example(prompt=prompt, label=label, weight=weight, group=group)
 
 
 def load_jsonl(path: str | Path, acceptable_score: float = 0.8) -> list[Example]:
@@ -81,8 +85,11 @@ def split_examples(
 ) -> tuple[list[Example], list[Example]]:
     if not 0.0 <= validation_fraction < 1.0:
         raise ValueError("validation_fraction must be in [0, 1)")
+    items = list(examples)
+    if any(example.group is not None for example in items):
+        return _split_grouped(items, validation_fraction, seed)
     buckets = {tier: [] for tier in Tier}
-    for example in examples:
+    for example in items:
         buckets[example.label].append(example)
     rng = random.Random(seed)
     total_items = sum(len(bucket) for bucket in buckets.values())
@@ -108,6 +115,59 @@ def split_examples(
         size = allocations[tier]
         validation.extend(bucket[:size])
         training.extend(bucket[size:])
+    rng.shuffle(training)
+    rng.shuffle(validation)
+    return training, validation
+
+
+def _split_grouped(
+    items: list[Example], validation_fraction: float, seed: int
+) -> tuple[list[Example], list[Example]]:
+    groups: dict[str, list[Example]] = {}
+    for index, example in enumerate(items):
+        key = example.group if example.group is not None else f"\x00ungrouped:{index}"
+        groups.setdefault(key, []).append(example)
+
+    rng = random.Random(seed)
+    candidates = list(groups.items())
+    rng.shuffle(candidates)
+    tier_totals = {tier: sum(example.label == tier for example in items) for tier in Tier}
+    tier_targets = {tier: tier_totals[tier] * validation_fraction for tier in Tier}
+    target_size = int(len(items) * validation_fraction)
+    if validation_fraction and len(items) > 1:
+        target_size = max(1, target_size)
+    selected: set[str] = set()
+    counts = {tier: 0 for tier in Tier}
+
+    def group_counts(group: list[Example]) -> dict[Tier, int]:
+        return {tier: sum(example.label == tier for example in group) for tier in Tier}
+
+    while candidates and sum(counts.values()) < target_size:
+        best_index: int | None = None
+        best_key: tuple[float, float] | None = None
+        for index, (_, group) in enumerate(candidates):
+            additions = group_counts(group)
+            if any(
+                tier_totals[tier] > 1 and counts[tier] + additions[tier] >= tier_totals[tier]
+                for tier in Tier
+            ):
+                continue
+            before = sum(abs(counts[tier] - tier_targets[tier]) for tier in Tier)
+            after = sum(abs(counts[tier] + additions[tier] - tier_targets[tier]) for tier in Tier)
+            new_total = sum(counts.values()) + len(group)
+            key = (before - after, -abs(new_total - target_size))
+            if best_key is None or key > best_key:
+                best_key, best_index = key, index
+        if best_index is None:
+            break
+        name, group = candidates.pop(best_index)
+        selected.add(name)
+        additions = group_counts(group)
+        for tier in Tier:
+            counts[tier] += additions[tier]
+
+    validation = [example for index, example in enumerate(items) if (example.group or f"\x00ungrouped:{index}") in selected]
+    training = [example for index, example in enumerate(items) if (example.group or f"\x00ungrouped:{index}") not in selected]
     rng.shuffle(training)
     rng.shuffle(validation)
     return training, validation
