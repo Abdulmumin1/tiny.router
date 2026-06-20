@@ -1,0 +1,52 @@
+---
+import Docs from "../layouts/Docs.astro";
+---
+
+<Docs title="Python SDK" description="Route, invoke, validate, and escalate model calls with tiny.router.">
+  <p class="eyebrow">Python SDK</p>
+  <h1>A provider-agnostic control plane.</h1>
+  <p class="lead">The SDK chooses models but never owns credentials. Bring any model client; keep authentication, budgets, and observability in your application.</p>
+
+  <h2>Route only</h2>
+  <div class="code-window"><div class="code-bar"><i></i><i></i><i></i>route.py</div><pre><code><span class="token-key">from</span> tiny_router <span class="token-key">import</span> Router
+
+router = Router.from_files(<span class="token-string">"model.json"</span>, <span class="token-string">"router.json"</span>)
+result = router.route(
+  <span class="token-string">"Prove this queue is linearizable"</span>,
+  minimum_tier=<span class="token-string">"medium"</span>,
+)
+
+<span class="token-key">print</span>(result.tier.label)
+<span class="token-key">print</span>(result.model)
+<span class="token-key">print</span>(result.decision.confidence)</code></pre></div>
+
+  <h2>Invoke, validate, escalate</h2>
+  <p>If an output fails your task check, <code>execute</code> advances one tier at a time. Retryable provider errors also escalate; non-retryable errors stay visible.</p>
+  <div class="code-window"><div class="code-bar"><i></i><i></i><i></i>execute.py</div><pre><code><span class="token-key">from</span> tiny_router <span class="token-key">import</span> ModelTarget, ProviderError
+
+<span class="token-key">def</span> invoke(target: ModelTarget, prompt: str) -> str:
+  <span class="token-key">try</span>:
+    <span class="token-key">return</span> client.generate(model=target.model, prompt=prompt)
+  <span class="token-key">except</span> TimeoutError <span class="token-key">as</span> exc:
+    <span class="token-key">raise</span> ProviderError(str(exc), retryable=<span class="token-key">True</span>)
+
+result = router.execute(
+  prompt,
+  invoke,
+  validate=answer_passes_tests,
+)
+
+<span class="token-key">print</span>(result.output)
+<span class="token-key">print</span>(result.escalated)</code></pre></div>
+
+  <h2>Async providers</h2>
+  <p><code>execute_async</code> mirrors the synchronous contract and accepts either synchronous or asynchronous validators.</p>
+  <div class="code-window"><div class="code-bar"><i></i><i></i><i></i>async.py</div><pre><code>result = <span class="token-key">await</span> router.execute_async(
+  prompt,
+  invoke=async_provider_call,
+  validate=async_task_check,
+)</code></pre></div>
+
+  <h2>Stable outputs</h2>
+  <ul><li><code>RoutingResult</code> resolves tier, model, provider, confidence, probabilities, expected costs, and decision reason.</li><li><code>ExecutionResult</code> adds provider output and every attempted tier.</li><li>Configuration and returned model metadata are immutable.</li><li>Domain errors derive from <code>RouterError</code>.</li></ul>
+</Docs>

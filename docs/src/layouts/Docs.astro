@@ -1,0 +1,23 @@
+---
+import Base from "./Base.astro";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const path = Astro.url.pathname;
+const nav = [["/quickstart/", "Quickstart"], ["/sdk/", "Python SDK"], ["/training/", "Training"]];
+---
+
+<Base title={`${title} — tiny.router`} description={description}>
+  <div class="shell doc-grid">
+    <aside class="sidebar" aria-label="Documentation">
+      <strong>Documentation</strong>
+      {nav.map(([href, label]) => <a href={href} aria-current={path === href ? "page" : undefined}>{label}</a>)}
+      <a href="https://github.com/Abdulmumin1/tiny.router#http-api">HTTP API ↗</a>
+    </aside>
+    <article class="doc-content"><slot /></article>
+  </div>
+</Base>

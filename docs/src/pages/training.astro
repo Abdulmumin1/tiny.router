@@ -1,0 +1,48 @@
+---
+import Docs from "../layouts/Docs.astro";
+---
+
+<Docs title="Training" description="Benchmark real models and train a calibrated capability router.">
+  <p class="eyebrow">Training &amp; evaluation</p>
+  <h1>Difficulty labels are not ground truth.</h1>
+  <p class="lead">A prompt “looks hard” is not a useful target. Run the task through every candidate model, score the outputs, and label it with the cheapest tier that actually passes.</p>
+
+  <div class="callout"><p>The included seed dataset is a smoke test. Its current nine-row holdout is intentionally reported honestly and is not suitable for production.</p></div>
+
+  <h2>Benchmark every tier</h2>
+  <div class="code-window"><div class="code-bar"><i></i><i></i><i></i>benchmark.py</div><pre><code><span class="token-key">from</span> tiny_router <span class="token-key">import</span> (
+  BenchmarkTask, RouterConfig,
+  run_benchmark, write_benchmark_jsonl,
+)
+
+config = RouterConfig.load(<span class="token-string">"router.json"</span>)
+tasks = [
+  BenchmarkTask(prompt, reference=expected, group=family)
+]
+
+records = run_benchmark(
+  tasks,
+  config,
+  invoke=<span class="token-key">lambda</span> target, prompt: client.generate(target.model, prompt),
+  judge=<span class="token-key">lambda</span> task, answer: score(task.reference, answer),
+)
+
+write_benchmark_jsonl(records, <span class="token-string">"data/benchmark.jsonl"</span>)</code></pre></div>
+
+  <h2>What gets recorded</h2>
+  <ul><li>A normalized 0–1 score for low, medium, and high.</li><li>Per-tier latency and provider failure details.</li><li>Task group and weight for leakage-safe splitting.</li><li>The original prompt, ready for the training loader.</li></ul>
+
+  <h2>Train and calibrate</h2>
+  <div class="code-window"><div class="code-bar"><i></i><i></i><i></i>terminal</div><pre><code>tiny-router train data/benchmark.jsonl \
+  --acceptable-score 0.8 \
+  --output model.json
+
+tiny-router evaluate data/locked-test.jsonl --model model.json</code></pre></div>
+  <p>Training uses weighted softmax regression over deterministic hashed features, then fits scalar temperature on held-out examples. Related task groups never cross the automatic split.</p>
+
+  <h2>Read the right metrics</h2>
+  <ul><li><strong>Under-route rate:</strong> how often the policy selected an incapable tier.</li><li><strong>Mean shortfall:</strong> how many capability levels were missed.</li><li><strong>Regret:</strong> realized cost compared with the cheapest sufficient model.</li><li><strong>Calibration:</strong> log loss and Brier score for probability quality.</li><li><strong>Savings:</strong> selected cost compared with always choosing high.</li></ul>
+
+  <h2>Production loop</h2>
+  <ol><li>Sample representative prompts from real traffic.</li><li>Score all candidate models with task-specific checks or validated review.</li><li>Lock an untouched test set and define a maximum under-route rate.</li><li>Tune costs and penalties from actual price, latency, and failure impact.</li><li>Re-benchmark whenever an underlying model changes.</li></ol>
+</Docs>

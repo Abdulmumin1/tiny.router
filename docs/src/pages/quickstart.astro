@@ -1,0 +1,41 @@
+---
+import Docs from "../layouts/Docs.astro";
+---
+
+<Docs title="Quickstart" description="Install, train, and run tiny.router in minutes.">
+  <p class="eyebrow">Quickstart</p>
+  <h1>From zero to a routed prompt.</h1>
+  <p class="lead">tiny.router is dependency-free at runtime. Train the included smoke-test dataset, map your three tiers, and route from Python or the command line.</p>
+
+  <h2>Install</h2>
+  <div class="code-window"><div class="code-bar"><i></i><i></i><i></i>terminal</div><pre><code>git clone https://github.com/Abdulmumin1/tiny.router
+cd tiny.router
+python3 -m venv .venv
+source .venv/bin/activate
+python3 -m pip install -e .</code></pre></div>
+
+  <h2>Train a smoke-test model</h2>
+  <p>The seed data proves the pipeline, not production quality. Its hand-written examples should still be replaced with prompts benchmarked against your actual models.</p>
+  <div class="code-window"><div class="code-bar"><i></i><i></i><i></i>terminal</div><pre><code>tiny-router train data/seed.jsonl --output model.json
+tiny-router inspect --model model.json</code></pre></div>
+
+  <h2>Configure your tiers</h2>
+  <p>Generate a starter file, then replace each placeholder with a model understood by your provider client.</p>
+  <div class="code-window"><div class="code-bar"><i></i><i></i><i></i>terminal</div><pre><code>tiny-router init --output router.json</code></pre></div>
+  <div class="code-window spaced"><div class="code-bar"><i></i><i></i><i></i>router.json</div><pre><code>&#123;
+  <span class="token-string">"models"</span>: &#123;
+    <span class="token-string">"low"</span>: <span class="token-string">"provider/tiny"</span>,
+    <span class="token-string">"medium"</span>: <span class="token-string">"provider/standard"</span>,
+    <span class="token-string">"high"</span>: <span class="token-string">"provider/frontier"</span>
+  &#125;
+&#125;</code></pre></div>
+
+  <h2>Route</h2>
+  <div class="code-window"><div class="code-bar"><i></i><i></i><i></i>terminal</div><pre><code>tiny-router route --model model.json --config router.json \
+  "Review this lock-free queue for linearizability"</code></pre></div>
+  <p>Omit the prompt to read from stdin. Use <code>--minimum-tier</code> and <code>--maximum-tier</code> for request-specific safety bounds.</p>
+
+  <div class="callout"><p><strong>Next:</strong> Use the <a href="/training/">benchmark pipeline</a> before making claims about cost savings or correctness.</p></div>
+</Docs>
+
+<style>.spaced { margin-top: 18px; }</style>

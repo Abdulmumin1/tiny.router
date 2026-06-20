@@ -12,7 +12,7 @@ The classifier estimates the **minimum capable tier** (`low`, `medium`, `high`).
 
 ## Status
 
-This repository contains a complete training, routing, benchmarking, SDK, and HTTP pipeline. The included 45-row seed dataset is only a smoke-test fixture: its current nine-row holdout reaches roughly 44% classifier accuracy and is not suitable for production. Real quality depends on representative prompts scored against your actual models.
+This repository contains a complete training, routing, benchmarking, SDK, and HTTP pipeline. The included seed dataset is a smoke-test fixture, not a production benchmark. Real quality depends on representative prompts scored against your actual models.
 
 Runtime dependencies: none. Python 3.10+.
 
@@ -196,4 +196,3 @@ The standard-library suite fuzzes arbitrary Unicode/control-character prompts, t
 5. Tune policy costs from measured price, latency, and failure impact.
 6. Log selected tier, confidence, escalation, outcome, latency, and cost.
 7. Re-benchmark when any underlying model changes.
-

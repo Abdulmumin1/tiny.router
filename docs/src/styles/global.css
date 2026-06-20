@@ -1,0 +1,76 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --ink: #171820;
+  --muted: #65666f;
+  --paper: #f4f1e9;
+  --panel: #fffdf7;
+  --line: #d9d5ca;
+  --lime: #d9ff5a;
+  --purple: #a68cff;
+  --coral: #ff8f70;
+  --max: 1160px;
+  color-scheme: light;
+  font-family: "Manrope", system-ui, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; min-height: 100vh; background: var(--paper); }
+a { color: inherit; }
+::selection { background: var(--purple); color: var(--ink); }
+
+.shell { width: min(calc(100% - 40px), var(--max)); margin-inline: auto; }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 9px; margin: 0 0 18px;
+  font: 500 12px/1 "DM Mono", monospace; letter-spacing: .11em; text-transform: uppercase;
+}
+.eyebrow::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--lime); box-shadow: 0 0 0 4px #d9ff5a33; }
+h1, h2, h3, p { margin-top: 0; }
+h1 { font-size: clamp(48px, 8vw, 108px); line-height: .93; letter-spacing: -.065em; margin-bottom: 28px; }
+h2 { font-size: clamp(34px, 5vw, 64px); line-height: 1; letter-spacing: -.045em; }
+h3 { font-size: 20px; letter-spacing: -.02em; }
+p { color: var(--muted); line-height: 1.7; }
+code, pre { font-family: "DM Mono", monospace; }
+code:not(pre code) { padding: .15em .4em; border: 1px solid var(--line); border-radius: 5px; background: #fff; font-size: .88em; }
+
+.button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 0 20px;
+  border: 1px solid var(--ink); border-radius: 9px; background: var(--ink); color: white; text-decoration: none;
+  font-size: 14px; font-weight: 700; box-shadow: 4px 4px 0 var(--purple); transition: transform .15s, box-shadow .15s;
+}
+.button:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--purple); }
+.button.secondary { background: transparent; color: var(--ink); box-shadow: none; }
+
+.code-window { overflow: hidden; border: 1px solid #343540; border-radius: 14px; background: #191a22; box-shadow: 10px 10px 0 #17182012; }
+.code-bar { display: flex; align-items: center; gap: 7px; padding: 13px 16px; border-bottom: 1px solid #343540; color: #8f9099; font: 12px "DM Mono", monospace; }
+.code-bar i { display: block; width: 8px; height: 8px; border-radius: 50%; background: var(--coral); }
+.code-bar i:nth-child(2) { background: #ffd166; }
+.code-bar i:nth-child(3) { background: var(--lime); margin-right: 8px; }
+pre { margin: 0; padding: 22px; color: #e9e7df; font-size: 13px; line-height: 1.75; overflow-x: auto; }
+.token-key { color: var(--purple); }.token-string { color: var(--lime); }.token-comment { color: #777985; }
+
+.doc-grid { display: grid; grid-template-columns: 230px minmax(0, 760px); gap: 70px; padding-block: 70px 120px; }
+.sidebar { position: sticky; top: 100px; height: max-content; }
+.sidebar strong { display: block; margin-bottom: 16px; font: 500 11px "DM Mono", monospace; text-transform: uppercase; letter-spacing: .1em; color: #8a8b91; }
+.sidebar a { display: block; padding: 8px 0; color: var(--muted); font-size: 14px; text-decoration: none; }
+.sidebar a:hover, .sidebar a[aria-current="page"] { color: var(--ink); font-weight: 700; }
+.doc-content h1 { font-size: clamp(46px, 7vw, 78px); }
+.doc-content h2 { margin-top: 64px; padding-top: 18px; border-top: 1px solid var(--line); font-size: 34px; }
+.doc-content h3 { margin-top: 36px; }
+.doc-content p, .doc-content li { font-size: 16px; line-height: 1.75; }
+.doc-content li { margin-block: 8px; color: var(--muted); }
+.doc-content .lead { font-size: 20px; max-width: 680px; }
+.callout { margin: 28px 0; padding: 18px 20px; border: 1px solid var(--ink); border-radius: 10px; background: var(--lime); box-shadow: 5px 5px 0 var(--ink); }
+.callout p { margin: 0; color: var(--ink); }
+
+@media (max-width: 760px) {
+  .shell { width: min(calc(100% - 28px), var(--max)); }
+  .doc-grid { grid-template-columns: 1fr; gap: 30px; padding-top: 36px; }
+  .sidebar { position: static; display: flex; gap: 10px; overflow-x: auto; padding-bottom: 12px; }
+  .sidebar strong { display: none; }
+  .sidebar a { white-space: nowrap; padding: 7px 11px; border: 1px solid var(--line); border-radius: 20px; }
+  pre { font-size: 11px; }
+}

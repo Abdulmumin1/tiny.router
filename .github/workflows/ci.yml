@@ -31,3 +31,22 @@ jobs:
       - name: Check whitespace errors
         run: git diff --check
 
+  docs:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.1.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: docs/pnpm-lock.yaml
+      - name: Install docs dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Type-check and build Astro docs
+        run: pnpm build

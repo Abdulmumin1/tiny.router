@@ -1,0 +1,14 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base title="Not found — tiny.router">
+  <section class="shell missing">
+    <p class="eyebrow">404 · under-routed</p>
+    <h1>This page needed a higher tier.</h1>
+    <p>There is nothing useful at this route. The docs, however, are still very much online.</p>
+    <a class="button" href="/">Return home →</a>
+  </section>
+</Base>
+
+<style>.missing { min-height: 72vh; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; max-width: 850px; }.missing h1 { font-size: clamp(54px, 9vw, 100px); }.missing p:not(.eyebrow) { max-width: 560px; font-size: 18px; }</style>

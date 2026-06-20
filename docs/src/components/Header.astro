@@ -1,0 +1,38 @@
+---
+const path = Astro.url.pathname;
+const links = [
+  ["/quickstart/", "Quickstart"],
+  ["/sdk/", "SDK"],
+  ["/training/", "Training"]
+];
+---
+
+<header>
+  <div class="shell nav">
+    <a class="brand" href="/" aria-label="tiny.router home">
+      <span class="mark"><i></i><i></i></span>
+      <b>tiny.router</b>
+      <small>v0.1</small>
+    </a>
+    <nav aria-label="Main navigation">
+      {links.map(([href, label]) => <a href={href} aria-current={path === href ? "page" : undefined}>{label}</a>)}
+    </nav>
+    <a class="github" href="https://github.com/Abdulmumin1/tiny.router" target="_blank" rel="noreferrer">GitHub <span>↗</span></a>
+  </div>
+</header>
+
+<style>
+  header { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter: blur(14px); }
+  .nav { height: 70px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .brand b { font-size: 16px; letter-spacing: -.03em; }
+  .brand small { padding: 3px 6px; border-radius: 4px; background: var(--lime); font: 10px "DM Mono", monospace; }
+  .mark { position: relative; width: 23px; height: 23px; border: 2px solid var(--ink); border-radius: 7px; }
+  .mark i { position: absolute; width: 5px; height: 5px; border-radius: 50%; background: var(--ink); top: 7px; left: 3px; }
+  .mark i + i { left: 12px; background: var(--purple); }
+  nav { display: flex; gap: 30px; }
+  nav a, .github { font-size: 13px; font-weight: 600; text-decoration: none; color: var(--muted); }
+  nav a:hover, nav a[aria-current="page"], .github:hover { color: var(--ink); }
+  .github { padding: 9px 12px; border: 1px solid var(--line); border-radius: 7px; }
+  @media (max-width: 700px) { nav { display: none; } .github { font-size: 0; } .github span { font-size: 14px; } }
+</style>

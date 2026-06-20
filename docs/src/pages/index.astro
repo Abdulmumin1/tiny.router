@@ -1,0 +1,101 @@
+---
+import Base from "../layouts/Base.astro";
+---
+
+<Base>
+  <section class="hero shell">
+    <div class="hero-copy">
+      <p class="eyebrow">Capability routing for language models</p>
+      <h1>One prompt.<br /><span>Right-sized</span> model.</h1>
+      <p class="intro">A tiny, calibrated classifier that sends each request to the cheapest model likely to answer it correctly — then escalates when reality disagrees.</p>
+      <div class="actions">
+        <a class="button" href="/quickstart/">Start routing <span>→</span></a>
+        <a class="button secondary" href="https://github.com/Abdulmumin1/tiny.router">View source ↗</a>
+      </div>
+    </div>
+    <div class="router-card" aria-label="Example routing decision">
+      <div class="prompt"><small>Incoming prompt</small><p>Prove this concurrent queue is linearizable.</p></div>
+      <div class="route-line"><i></i><span>capability estimate</span><b>0.82</b></div>
+      <div class="tiers">
+        <div><span>L</span><p>low</p><small>$</small></div>
+        <div><span>M</span><p>medium</p><small>$$</small></div>
+        <div class="selected"><span>H</span><p>high</p><small>selected</small></div>
+      </div>
+      <div class="decision"><span>↳</span><p><b>frontier-model</b><small>high-risk guardrail</small></p><i>18ms</i></div>
+    </div>
+  </section>
+
+  <section class="signal">
+    <div class="shell signal-grid">
+      <div><b>3</b><span>capability tiers</span></div>
+      <div><b>0</b><span>runtime dependencies</span></div>
+      <div><b>64<span>MB</span></b><span>artifact size guard</span></div>
+      <div><b>∞</b><span>provider choices</span></div>
+    </div>
+  </section>
+
+  <section class="why shell">
+    <div class="section-heading">
+      <p class="eyebrow">Route by evidence, not vibes</p>
+      <h2>Intelligence is expensive.<br />Use exactly enough.</h2>
+    </div>
+    <div class="feature-grid">
+      <article><span>01</span><h3>Predict capability</h3><p>A tiny hashed-feature classifier estimates the minimum tier required by the prompt.</p></article>
+      <article><span>02</span><h3>Price the risk</h3><p>A separate policy balances model cost against the real damage of under-routing.</p></article>
+      <article><span>03</span><h3>Check the answer</h3><p>Validate provider output and automatically step up a tier when it misses the mark.</p></article>
+    </div>
+  </section>
+
+  <section class="showcase shell">
+    <div>
+      <p class="eyebrow">A small API with sharp edges sanded down</p>
+      <h2>Route in four lines.</h2>
+      <p>Bring any provider. Keep credentials and retries in your application. tiny.router handles capability, policy, and escalation.</p>
+      <ul><li>Sync and async execution</li><li>Per-request tier floors and ceilings</li><li>Typed errors and immutable results</li><li>Batch HTTP routing on Workers</li></ul>
+      <a href="/sdk/">Explore the SDK →</a>
+    </div>
+    <div class="code-window">
+      <div class="code-bar"><i></i><i></i><i></i>route.py</div>
+      <pre><code><span class="token-key">from</span> tiny_router <span class="token-key">import</span> Router
+
+router = Router.from_files(
+  <span class="token-string">"model.json"</span>,
+  <span class="token-string">"router.json"</span>
+)
+
+result = router.route(
+  <span class="token-string">"Design a consensus protocol"</span>
+)
+
+<span class="token-key">print</span>(result.model)
+<span class="token-comment"># frontier-model</span></code></pre>
+    </div>
+  </section>
+
+  <section class="truth">
+    <div class="shell truth-grid">
+      <p class="eyebrow">The part that actually matters</p>
+      <h2>Your data decides whether the router is good.</h2>
+      <p>Run representative prompts through every candidate model. Judge the answers. Train on the cheapest tier that passes. The benchmark SDK records scores, latency, failures, and task groups without pretending hand-written difficulty labels are ground truth.</p>
+      <a class="button" href="/training/">Build the dataset →</a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .hero { display: grid; grid-template-columns: 1.15fr .85fr; gap: 70px; align-items: center; min-height: 720px; padding-block: 86px; }
+  h1 span { position: relative; z-index: 1; } h1 span::after { content: ""; position: absolute; z-index: -1; left: -.02em; right: -.02em; bottom: .03em; height: .18em; background: var(--lime); transform: rotate(-1deg); }
+  .intro { max-width: 650px; font-size: 19px; }
+  .actions { display: flex; gap: 14px; margin-top: 34px; flex-wrap: wrap; }
+  .router-card { padding: 14px; border: 1px solid var(--ink); border-radius: 20px; background: var(--panel); box-shadow: 10px 10px 0 var(--purple); transform: rotate(1.2deg); }
+  .prompt { padding: 24px; border-radius: 12px; background: var(--ink); color: white; } .prompt small, .prompt p { color: inherit; } .prompt small { font: 10px "DM Mono"; text-transform: uppercase; color: #9899a2; } .prompt p { margin: 10px 0 0; font-size: 18px; line-height: 1.45; }
+  .route-line { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; align-items: center; padding: 19px 8px; color: var(--muted); font: 10px "DM Mono"; text-transform: uppercase; } .route-line i { border-top: 1px dashed #bbb8af; } .route-line b { color: var(--ink); }
+  .tiers { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; } .tiers div { padding: 16px 10px; border: 1px solid var(--line); border-radius: 10px; text-align: center; } .tiers span { display: grid; place-items: center; width: 30px; height: 30px; margin: auto; border-radius: 7px; background: #e7e3da; font: 500 11px "DM Mono"; } .tiers p { margin: 8px 0 3px; font-size: 12px; color: var(--ink); } .tiers small { color: #99978f; font: 9px "DM Mono"; } .tiers .selected { border-color: var(--ink); background: var(--lime); box-shadow: 3px 3px 0 var(--ink); } .tiers .selected span { background: var(--ink); color: white; }
+  .decision { display: flex; align-items: center; gap: 12px; padding: 24px 10px 10px; } .decision > span { font-size: 24px; } .decision p { flex: 1; display: flex; flex-direction: column; margin: 0; } .decision p b { color: var(--ink); font-size: 13px; } .decision p small, .decision > i { font: 9px "DM Mono"; color: #8e8c85; }
+  .signal { border-block: 1px solid var(--ink); background: var(--lime); } .signal-grid { display: grid; grid-template-columns: repeat(4, 1fr); } .signal-grid div { display: flex; flex-direction: column; padding: 30px; border-right: 1px solid var(--ink); } .signal-grid div:first-child { border-left: 1px solid var(--ink); } .signal-grid b { font-size: 31px; line-height: 1; } .signal-grid b span { font-size: 13px; } .signal-grid > div > span { margin-top: 7px; font: 10px "DM Mono"; text-transform: uppercase; }
+  .why { padding-block: 130px; } .section-heading { max-width: 820px; } .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 64px; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); overflow: hidden; } .feature-grid article { padding: 34px; border-right: 1px solid var(--line); } .feature-grid article:last-child { border: 0; } .feature-grid article > span { display: inline-block; margin-bottom: 55px; color: #888880; font: 11px "DM Mono"; } .feature-grid p { margin: 0; font-size: 14px; }
+  .showcase { display: grid; grid-template-columns: .85fr 1.15fr; gap: 100px; align-items: center; padding-block: 50px 150px; } .showcase > div:first-child > p { max-width: 520px; } .showcase ul { padding-left: 18px; columns: 2; color: var(--muted); font-size: 13px; line-height: 2.2; } .showcase a { font-weight: 700; text-decoration: none; }
+  .truth { padding: 110px 0; background: var(--ink); color: white; } .truth-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px 70px; align-items: start; } .truth h2 { grid-column: 2; } .truth > div > p:not(.eyebrow) { grid-column: 2; max-width: 700px; color: #b9bac1; font-size: 18px; } .truth .button { grid-column: 2; width: max-content; background: var(--lime); color: var(--ink); box-shadow: 4px 4px 0 var(--purple); }
+  @media (max-width: 850px) { .hero, .showcase { grid-template-columns: 1fr; } .hero { min-height: auto; } .router-card { max-width: 520px; } .signal-grid { grid-template-columns: repeat(2, 1fr); } .feature-grid { grid-template-columns: 1fr; } .feature-grid article { border-right: 0; border-bottom: 1px solid var(--line); } .feature-grid article > span { margin-bottom: 20px; } .truth-grid { display: block; } .truth .button { margin-top: 20px; } }
+  @media (max-width: 500px) { .signal-grid { grid-template-columns: 1fr 1fr; } .signal-grid div { padding: 20px 14px; } .showcase ul { columns: 1; } }
+</style>

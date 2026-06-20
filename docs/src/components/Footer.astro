@@ -1,0 +1,24 @@
+<footer>
+  <div class="shell footer-grid">
+    <div>
+      <strong>tiny.router</strong>
+      <p>The smallest model that can do the job.</p>
+    </div>
+    <div class="links">
+      <a href="/quickstart/">Docs</a>
+      <a href="https://github.com/Abdulmumin1/tiny.router">Source</a>
+      <a href="https://github.com/Abdulmumin1/tiny.router/blob/main/LICENSE">MIT License</a>
+    </div>
+    <span>Built with Python, Astro &amp; good judgment.</span>
+  </div>
+</footer>
+
+<style>
+  footer { padding: 54px 0; border-top: 1px solid var(--line); }
+  .footer-grid { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 36px; }
+  strong { font-size: 18px; } p { margin: 8px 0 0; font-size: 13px; }
+  .links { display: flex; gap: 24px; }
+  a { color: var(--muted); font-size: 13px; text-decoration: none; }
+  span { grid-column: 1 / -1; padding-top: 26px; border-top: 1px solid var(--line); color: #93938f; font: 11px "DM Mono", monospace; }
+  @media (max-width: 600px) { .footer-grid { grid-template-columns: 1fr; } .links { flex-wrap: wrap; } }
+</style>
