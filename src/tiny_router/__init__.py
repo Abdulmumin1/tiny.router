@@ -13,13 +13,15 @@ from .errors import (
     RouterError,
 )
 from .config import ModelTarget, RouterConfig
-from .sdk import Router, RoutingResult
+from .sdk import ExecutionAttempt, ExecutionResult, Router, RoutingResult
 
 __all__ = [
     "ArtifactError",
     "ConfigurationError",
     "DatasetError",
     "ExhaustedError",
+    "ExecutionAttempt",
+    "ExecutionResult",
     "InvalidPromptError",
     "ModelTarget",
     "ProviderError",

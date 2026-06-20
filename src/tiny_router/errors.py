@@ -28,3 +28,7 @@ class ProviderError(RouterError):
 
 class ExhaustedError(ProviderError):
     """Every permitted model tier failed or produced an unacceptable answer."""
+
+    def __init__(self, message: str, *, attempts: tuple[object, ...] = ()) -> None:
+        super().__init__(message, retryable=False)
+        self.attempts = attempts
