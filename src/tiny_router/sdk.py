@@ -65,7 +65,7 @@ class ExecutionResult(Generic[T]):
 
 
 class Router:
-    """Thread-safe, provider-agnostic routing SDK."""
+    """Provider-agnostic SDK; concurrent inference is safe after model setup."""
 
     def __init__(self, model: RouterModel, config: RouterConfig, *, max_prompt_chars: int = 200_000) -> None:
         if not isinstance(max_prompt_chars, int) or isinstance(max_prompt_chars, bool) or max_prompt_chars < 1:

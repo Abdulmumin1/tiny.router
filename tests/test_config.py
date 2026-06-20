@@ -23,6 +23,10 @@ class ConfigTests(unittest.TestCase):
         config = RouterConfig.from_dict(VALID)
         self.assertEqual(config.target_for(Tier.MEDIUM).model, "vendor/regular")
         self.assertEqual(RouterConfig.from_dict(config.to_dict()).to_dict(), config.to_dict())
+        with self.assertRaises(TypeError):
+            config.models[Tier.LOW] = config.models[Tier.HIGH]  # type: ignore[index]
+        with self.assertRaises(TypeError):
+            config.target_for(Tier.HIGH).metadata["context"] = 1  # type: ignore[index]
 
     def test_unknown_keys_fail_fast(self) -> None:
         payload = {**VALID, "polciy": {}}

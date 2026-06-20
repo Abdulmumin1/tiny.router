@@ -18,6 +18,21 @@ class Example:
     weight: float = 1.0
     group: str | None = None
 
+    def __post_init__(self) -> None:
+        if not isinstance(self.prompt, str) or not self.prompt.strip():
+            raise DatasetError("example prompt must be a non-empty string")
+        if not isinstance(self.label, Tier):
+            raise DatasetError("example label must be a Tier")
+        if (
+            not isinstance(self.weight, (int, float))
+            or isinstance(self.weight, bool)
+            or not math.isfinite(self.weight)
+            or self.weight <= 0
+        ):
+            raise DatasetError("example weight must be finite and positive")
+        if self.group is not None and (not isinstance(self.group, str) or not self.group.strip()):
+            raise DatasetError("example group must be a non-empty string when set")
+
 
 def label_from_scores(scores: dict[str, float], acceptable_score: float) -> Tier:
     if not math.isfinite(acceptable_score) or not 0 <= acceptable_score <= 1:

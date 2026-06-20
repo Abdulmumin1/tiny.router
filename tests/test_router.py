@@ -14,6 +14,14 @@ from tiny_router.types import Tier
 
 
 class DataTests(unittest.TestCase):
+    def test_direct_examples_enforce_dataset_invariants(self) -> None:
+        with self.assertRaises(ValueError):
+            Example("", Tier.LOW)
+        with self.assertRaises(ValueError):
+            Example("prompt", Tier.LOW, weight=float("nan"))
+        with self.assertRaises(ValueError):
+            Example("prompt", Tier.LOW, group="")
+
     def test_score_labels_choose_cheapest_acceptable_tier(self) -> None:
         self.assertEqual(label_from_scores({"low": 0.81, "medium": 0.9, "high": 1.0}, 0.8), Tier.LOW)
         self.assertEqual(label_from_scores({"low": 0.2, "medium": 0.85, "high": 0.9}, 0.8), Tier.MEDIUM)

@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field, fields
 from pathlib import Path
+from types import MappingProxyType
 from typing import Any, Mapping
 
 from .errors import ConfigurationError
@@ -21,6 +22,9 @@ class ModelTarget:
             raise ConfigurationError("model identifier must be a non-empty string")
         if self.provider is not None and (not isinstance(self.provider, str) or not self.provider.strip()):
             raise ConfigurationError("provider must be a non-empty string when set")
+        if not isinstance(self.metadata, Mapping):
+            raise ConfigurationError("metadata must be a mapping")
+        object.__setattr__(self, "metadata", MappingProxyType(dict(self.metadata)))
 
     @classmethod
     def parse(cls, value: object) -> "ModelTarget":
@@ -51,12 +55,15 @@ class RouterConfig:
     policy: RoutingPolicy = field(default_factory=RoutingPolicy)
 
     def __post_init__(self) -> None:
+        if not isinstance(self.models, Mapping):
+            raise ConfigurationError("models must be a mapping")
         missing = set(Tier) - set(self.models)
         extra = set(self.models) - set(Tier)
         if missing or extra:
             raise ConfigurationError(
                 f"models must define exactly low, medium, high; missing={sorted(t.label for t in missing)}"
             )
+        object.__setattr__(self, "models", MappingProxyType(dict(self.models)))
 
     def target_for(self, tier: Tier | str | int) -> ModelTarget:
         return self.models[Tier.parse(tier)]
@@ -120,4 +127,3 @@ class RouterConfig:
                 "high_probability_threshold": self.policy.high_probability_threshold,
             },
         }
-
