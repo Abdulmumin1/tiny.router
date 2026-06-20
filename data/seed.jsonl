@@ -323,3 +323,18 @@
 {"prompt":"What is the opposite of happy?","label":"low"}
 {"prompt":"Is 9 a perfect square?","label":"low"}
 {"prompt":"Translate 'goodbye' to Spanish.","label":"low"}
+{"prompt":"Update the README with this updated installation command: npm install router-sdk","label":"low"}
+{"prompt":"Fix a typo in the API description: 'retreive' should be 'retrieve'.","label":"low"}
+{"prompt":"Format this Markdown document's table of contents to look neat and clean.","label":"low"}
+{"prompt":"Add basic comments to this Python helper function so other developers know what it returns.","label":"low"}
+{"prompt":"Update the copyright year in the LICENSE file from 2023 to 2026.","label":"low"}
+{"prompt":"Rewrite the entire getting started guide to include a detailed configuration tutorial and environment setup steps.","label":"medium"}
+{"prompt":"Update the architecture documentation to explain how data flows from the gateway to the queue and finally the DB.","label":"medium"}
+{"prompt":"Draft a user manual section explaining how to configure API rate limits, with copy-pasteable JSON examples.","label":"medium"}
+{"prompt":"Create an OpenAPI specification for our new authentication endpoints.","label":"medium"}
+{"prompt":"Document our database schema structure, listing tables, primary keys, and index selections for the team.","label":"medium"}
+{"prompt":"Debug this non-deterministic memory leak where the heap usage climbs only when the database connection pool is saturated and async timeouts occur.","label":"high"}
+{"prompt":"Analyze this thread dump to identify a deadlock occurring between the logging queue and the event processor threads.","label":"high"}
+{"prompt":"Debug a segmentation fault that occurs inside the foreign-function interface (FFI) call during garbage collection.","label":"high"}
+{"prompt":"Investigate why a production race condition intermittently corrupts shared state under extreme parallel workloads using lockless structures.","label":"high"}
+{"prompt":"Debug an optimizer bug where the compiler produces illegal instructions under specific nested loop-invariant code motion (LICM) optimizations.","label":"high"}
