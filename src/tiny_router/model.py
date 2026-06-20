@@ -46,6 +46,9 @@ class RouterModel:
 
     def predict_logits(self, prompt: str) -> tuple[float, float, float]:
         features = extract_features(prompt, self.dimensions)
+        return self._logits_from_features(features)
+
+    def _logits_from_features(self, features: dict[int, float]) -> tuple[float, float, float]:
         return tuple(
             sum(row[index] * value for index, value in features.items())
             for row in self.weights
@@ -69,7 +72,12 @@ class RouterModel:
     ) -> "RouterModel":
         if not examples:
             raise ValueError("training examples cannot be empty")
-        if epochs < 1 or learning_rate <= 0 or l2 < 0 or underroute_weight < 1:
+        if not isinstance(epochs, int) or isinstance(epochs, bool) or epochs < 1:
+            raise ValueError("epochs must be a positive integer")
+        numeric = (learning_rate, l2, underroute_weight)
+        if any(not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value) for value in numeric):
+            raise ValueError("training hyperparameters must be finite numbers")
+        if learning_rate <= 0 or l2 < 0 or underroute_weight < 0:
             raise ValueError("invalid training hyperparameters")
         model = cls.empty(dimensions)
         rng = random.Random(seed)
@@ -81,7 +89,7 @@ class RouterModel:
             for position in order:
                 example = examples[position]
                 features = extract_features(example.prompt, dimensions)
-                probabilities = model.predict_proba(example.prompt)
+                probabilities = _softmax(model._logits_from_features(features))
                 # Mistaking medium/high requirements for low is progressively more costly.
                 sample_weight = example.weight * (1.0 + underroute_weight * int(example.label))
                 for class_index, row in enumerate(model.weights):

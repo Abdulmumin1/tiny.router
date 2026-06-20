@@ -65,6 +65,17 @@ class ModelTests(unittest.TestCase):
         predictions = [self.model.predict(example.prompt) for example in self.examples]
         self.assertEqual(predictions, [example.label for example in self.examples])
 
+    def test_training_rejects_non_finite_hyperparameters(self) -> None:
+        for kwargs in (
+            {"learning_rate": float("nan")},
+            {"l2": float("inf")},
+            {"underroute_weight": float("nan")},
+            {"epochs": True},
+        ):
+            with self.subTest(kwargs=kwargs):
+                with self.assertRaises(ValueError):
+                    RouterModel.train(self.examples, dimensions=32, **kwargs)
+
     def test_probabilities_are_valid(self) -> None:
         probabilities = self.model.predict_proba("an entirely unseen prompt")
         self.assertTrue(all(math.isfinite(value) and 0 <= value <= 1 for value in probabilities))
